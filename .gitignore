@@ -1,0 +1,14 @@
+venv/
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+*.log
+.DS_Store
+/results_mlm/
+/results_nsp/
+/bookcorpus_mlm_model/
+/bookcorpus_nsp_model/
+/shakespeare_mlm_model/
+/shakespeare_nsp_model/
+Bookcorpus_dataset.txt
