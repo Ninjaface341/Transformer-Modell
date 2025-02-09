@@ -7,6 +7,7 @@ from transformers import (
     TrainingArguments,
     AutoModelForMaskedLM,
     AutoTokenizer,
+    EarlyStoppingCallback
 )
 from data_preparation_mlm import prepare_data_mlm
 
@@ -26,41 +27,39 @@ def main():
         if mlm_datasets is None:
             raise ValueError("Fehler beim Vorbereiten des MLM-Datensatzes.")
 
-        # Modell und Tokenizer für MLM laden
-        checkpoint = "distilbert-base-cased"
+        # Modell und Tokenizer laden
+        checkpoint = "./bookcorpus_mlm_model"   #first train with 'distil-bert-uncased' after that repeat but with created model
         logger.info(f"Lade Modell und Tokenizer von {checkpoint}...")
-        model = AutoModelForMaskedLM.from_pretrained(checkpoint)
+        model = AutoModelForMaskedLM.from_pretrained(checkpoint).to(device)
         tokenizer = AutoTokenizer.from_pretrained(checkpoint, use_fast=True)
-        model.to(device)
-
 
         # DataCollator mit dynamischer Maskierung
         data_collator = DataCollatorForLanguageModeling(
             tokenizer=tokenizer,
             mlm=True,
-            mlm_probability=0.15,
+            mlm_probability=0.18,
         )
 
         # Trainingsparameter
         training_args = TrainingArguments(
             output_dir="./results_mlm",
             evaluation_strategy="epoch",
-            save_strategy="epoch",  # Speichern nach jeder Epoche
-            learning_rate=5e-5,
+            save_strategy="epoch",
+            learning_rate=2e-5,
             weight_decay=0.01,
-            num_train_epochs=5,  # Weniger Epochen für schnellere Tests / Mehr Epochen für genaure Tests
-            per_device_train_batch_size=4,  # Kleinere Batch-Größe für weniger Speicherverbrauch
+            num_train_epochs=5,
+            per_device_train_batch_size=4,
             per_device_eval_batch_size=4,
-            gradient_accumulation_steps=4,  # Erhöhen für stabileres Training
+            gradient_accumulation_steps=4,
             save_total_limit=2,
             logging_dir="./logs",
-            logging_steps=50,  # Häufigere Logs zur Fortschrittskontrolle
+            logging_steps=50,
             fp16=True,
-            dataloader_num_workers=2,  # Weniger Worker für stabileres Training
-
+            dataloader_num_workers=2,
+            load_best_model_at_end=True
         )
 
-        # Trainer
+        # Trainer initialisieren
         trainer = Trainer(
             model=model,
             args=training_args,
@@ -68,6 +67,7 @@ def main():
             eval_dataset=mlm_datasets["validation"],
             tokenizer=tokenizer,
             data_collator=data_collator,
+            callbacks=[EarlyStoppingCallback(early_stopping_patience=2)]
         )
 
         # Training starten
@@ -84,10 +84,10 @@ def main():
         else:
             raise FileNotFoundError("WARNUNG: Modell wurde nicht korrekt gespeichert!")
 
-        # Validierung des gespeicherten Modells
+        # Modell-Validierung
         logger.info("Lade gespeichertes Modell und Tokenizer zur Validierung...")
-        loaded_model = AutoModelForMaskedLM.from_pretrained("./bookcorpus_mlm_model")
-        loaded_tokenizer = AutoTokenizer.from_pretrained("distilbert-base-cased")  # Muss übereinstimmen!
+        loaded_model = AutoModelForMaskedLM.from_pretrained("./bookcorpus_mlm_model").to(device)
+        loaded_tokenizer = AutoTokenizer.from_pretrained("distilbert-base-cased")
 
         # Beispiel-Validierung: Test-Tokenisierung und Vorhersage
         test_text = "To be, or not to be, that is the [MASK]."
