@@ -59,16 +59,31 @@ def evaluate_nsp_accuracy(texts, model, mytokenizer, num_samples=100):
 
     return correct / num_samples
 
-# Beispieltexte für NSP
+# Beispieltexte für Next Sentence Prediction (NSP)
 nsp_examples = [
-    ("To be, or not to be,", "that is the question."),
+    # Positive Beispiele (zusammenhängende Sätze)
+    ("To be, or not to be,", "that is the question:"),
     ("The sun rises in the east,", "and sets in the west."),
-    ("Programming is fun", "Thou art more lovely and more temperate."),
-    ("To be, or not to be,", "The price of oranges has risen in the market."),
-    ("Friends, Romans, countrymen, lend me your ears!", "The temperature in Antarctica is below freezing today."),
-    ("All the world’s a stage,", "x."),
+    ("Friends, Romans, countrymen, lend me your ears!", "I come to bury Caesar, not to praise him."),
+    ("O Romeo, Romeo!", "Wherefore art thou Romeo?"),
+    ("In the beginning,", "God created the heavens and the earth."),
     ("The quick brown fox", "jumps over the lazy dog."),
-    ("In the beginning", "God created the heavens and the earth."),
+    ("Once upon a time,", "there was a little girl named Red Riding Hood."),
+    ("He opened the old book,", "and dust flew into the air."),
+    ("The storm was fierce,", "but the sailors held their course."),
+    ("She knocked on the door,", "and waited for a response."),
+
+    # Negative Beispiele (nicht zusammenhängende Sätze)
+    ("To be, or not to be,", "The cat ran across the street."),
+    ("The sun rises in the east,", "Bananas are rich in potassium."),
+    ("Friends, Romans, countrymen, lend me your ears!", "It’s going to rain tomorrow."),
+    ("O Romeo, Romeo!", "The price of oil has dropped significantly."),
+    ("In the beginning,", "The concert was sold out in minutes."),
+    ("The quick brown fox", "She loves to paint in her free time."),
+    ("Once upon a time,", "The temperature in Antarctica is freezing."),
+    ("He opened the old book,", "They decided to buy a new car."),
+    ("The storm was fierce,", "Mathematics is a fundamental subject in school."),
+    ("She knocked on the door,", "The stock market closed higher today."),
 ]
 
 # NSP-Ergebnisse
