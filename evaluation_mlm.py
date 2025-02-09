@@ -63,11 +63,31 @@ def evaluate_mlm_accuracy(examples_with_answers, top_k=5):
 
 # Beispieltexte für MLM mit richtigen Antworten
 mlm_examples_with_answers = [
-    ("To be, or not to be, that is the [MASK].", "question"),
+
+    ("To be, or not to be, that is the [MASK]:", "question"),
     ("All the world's a [MASK], and all the men and women merely [MASK].", "stage"),
     ("Shall I compare thee to a [MASK]'s day?", "summer"),
     ("If [MASK] be the food of [MASK], play on.", "music"),
+    ("O Romeo, Romeo! Wherefore art thou [MASK] Romeo?", "Romeo"),
+    ("The lady doth protest too [MASK], methinks.", "much"),
+    ("A horse! A horse! My [MASK] for a horse!", "kingdom"),
+    ("Brevity is the soul of [MASK].", "wit"),
+    
+   
+    ("She opened the door and saw the [MASK] shining brightly.", "sun"),
+    ("It was a long journey, but finally they reached the [MASK].", "destination"),
+    ("The cat jumped onto the [MASK] and knocked over the vase.", "table"),
+    ("He couldn't believe his [MASK] when he saw the results.", "eyes"),
+    ("They sat around the [MASK], sharing stories from their past.", "fire"),
+    ("She always dreamed of visiting the [MASK] during summer.", "beach"),
+    ("He picked up the [MASK] and started reading quietly.", "book"),
+    ("After the storm, the sky turned a brilliant shade of [MASK].", "blue"),
+    ("He whispered the secret into her [MASK], hoping no one else would hear.", "ear"),
+    ("She found the hidden [MASK] under the old wooden floor.", "treasure"),
+    ("The sound of the waves crashing against the [MASK] was calming.", "shore"),
+    ("They packed their bags and left for the [MASK] early in the morning.", "airport"),
 ]
+
 
 # MLM-Ergebnisse
 print("\n=== Masked Language Modeling (MLM) Ergebnisse ===")
