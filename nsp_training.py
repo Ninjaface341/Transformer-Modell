@@ -36,14 +36,14 @@ def main():
             learning_rate=3e-5,  # Leicht gesenkt, um Overfitting zu vermeiden
             weight_decay=0.01,
             num_train_epochs=5,  # Erhöhe die Epochen für besseres Lernen
-            per_device_train_batch_size=4,  # Moderate Batch-Größe für langsames, stabiles Lernen
-            per_device_eval_batch_size=4,
+            per_device_train_batch_size=64,  # Moderate Batch-Größe für langsames, stabiles Lernen
+            per_device_eval_batch_size=64,
             gradient_accumulation_steps=4,  # Stabilisiert das Training bei kleinen Batch-Sizes
             save_total_limit=2,  # Spart Speicherplatz
             logging_dir="./logs",
-            logging_steps=50
+            logging_steps=50,
             fp16 = True,
-            dataloader_num_workers = 2
+            dataloader_num_workers = 4
         )
 
         # Trainer initialisieren
