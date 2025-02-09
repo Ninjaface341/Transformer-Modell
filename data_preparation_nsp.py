@@ -7,8 +7,9 @@ import logging
 logging.basicConfig(level=logging.INFO)
 
 # Tokenizer und Modell für NSP laden
-tokenizer = AutoTokenizer.from_pretrained("bert-base-uncased")
-model = BertForNextSentencePrediction.from_pretrained("bert-base-uncased")
+model_checkpoint = "bert-base-uncased"
+tokenizer = AutoTokenizer.from_pretrained(model_checkpoint)
+model = BertForNextSentencePrediction.from_pretrained(model_checkpoint)
 
 
 # Funktion zur Erstellung des NSP-Datensatzes
