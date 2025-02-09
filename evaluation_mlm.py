@@ -63,7 +63,7 @@ def evaluate_mlm_accuracy(examples_with_answers, top_k=5):
 
 # Beispieltexte für MLM mit richtigen Antworten
 mlm_examples_with_answers = [
-
+    #Shakespeare
     ("To be, or not to be, that is the [MASK]:", "question"),
     ("All the world's a [MASK], and all the men and women merely [MASK].", "stage"),
     ("Shall I compare thee to a [MASK]'s day?", "summer"),
@@ -73,7 +73,7 @@ mlm_examples_with_answers = [
     ("A horse! A horse! My [MASK] for a horse!", "kingdom"),
     ("Brevity is the soul of [MASK].", "wit"),
     
-   
+    #Bookcorpus   
     ("She opened the door and saw the [MASK] shining brightly.", "sun"),
     ("It was a long journey, but finally they reached the [MASK].", "destination"),
     ("The cat jumped onto the [MASK] and knocked over the vase.", "table"),
