@@ -77,14 +77,16 @@ python evaluation_nsp.py
 .
 ├── data_preparation_mlm.py
 ├── data_preparation_nsp.py
+├── data_preparation_combined.py
 ├── mlm_training.py
 ├── nsp_training.py
+├── combined_training.py
 ├── evaluation_mlm.py
 ├── evaluation_nsp.py
-├── bookcorpus_mlm_model/       # Folder containing the trained MLM model
-├── bookcorpus_nsp_model/       # Folder containing the trained NSP model
+├── utils.py
 ├── requirements.txt
 └── README.md
+├── licence
 ```
 ## 📥 Download Models here:
 - [Masked Language Model (MLM)](https://huggingface.co/Ninja666/bookcorpus_mlm_model)
