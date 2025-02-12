@@ -16,10 +16,11 @@ To run this project, you will need to meet the following requirements:
 ### **requirements.txt:**
 ```bash
 torch>=1.13
-transformers
-datasets
-nltk
-requests
+transformers>=4.37.0
+datasets>=2.16.0
+accelerate>=0.27.0
+nltk>=3.8
+requests>=2.31
 ```
 Alternatively, you can install the primary dependency directly:
 ```bash
