@@ -1,102 +1,103 @@
-from transformers import AutoModelForSequenceClassification, AutoTokenizer
-import torch
+import logging
 import os
-import random
 
-# Pfad zum NSP-Modell
+import torch
+from transformers import BertForNextSentencePrediction, AutoTokenizer
+
+# === Configure logging ===
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger(__name__)
+
+# === Path to the NSP model ===
 NSP_PATH = "./bookcorpus_nsp_model"
+# COMBINED_PATH = "./bert_combined_model" # --- Change if COMBINED_PATH needs to be checked ---
 
-# Überprüfung, ob das Modell existiert
+# === Check if the model exists ===
 if not os.path.exists(NSP_PATH):
-    raise FileNotFoundError("Das gespeicherte NSP-Modell wurde nicht gefunden.")
+    raise FileNotFoundError("The saved NSP model was not found.")
 
-# Modell und Tokenizer laden
-print("Lade gespeichertes NSP-Modell und Tokenizer...")
+# === Load model and tokenizer ===
+logger.info("Loading saved NSP model and tokenizer...")
 try:
-    nsp_model = AutoModelForSequenceClassification.from_pretrained(NSP_PATH)
-    tokenizer = AutoTokenizer.from_pretrained(NSP_PATH)
-    print("Modell und Tokenizer erfolgreich geladen.")
+    nsp_model = BertForNextSentencePrediction.from_pretrained(NSP_PATH)  # --- Change if COMBINED_PATH needs to be checked ---
+    tokenizer = AutoTokenizer.from_pretrained(NSP_PATH)  # --- Change if COMBINED_PATH needs to be checked ---
+    logger.info("Model and tokenizer loaded successfully.")
 except Exception as e:
-    print(f"Fehler beim Laden des Modells: {e}")
+    logger.error(f"Error loading the model: {e}")
     exit(1)
 
-# Setze Modell in den Evaluationsmodus
+# === Set model to evaluation mode ===
 nsp_model.eval()
 
-# Funktion für Next Sentence Prediction (NSP)
+# === Function for Next Sentence Prediction (NSP) ===
 def evaluate_nsp(sentence1: str, sentence2: str):
-    inputs = tokenizer(sentence1, sentence2, return_tensors="pt")
+    inputs = tokenizer(sentence1, sentence2, return_tensors="pt", padding=True, truncation=True, max_length=512)
     with torch.no_grad():
         outputs = nsp_model(**inputs)
         probabilities = torch.nn.functional.softmax(outputs.logits, dim=-1)
 
-    next_sentence_prob = probabilities[0][1].item()
-    not_next_sentence_prob = probabilities[0][0].item()
+    next_sentence_prob = probabilities[0][0].item()
+    not_next_sentence_prob = probabilities[0][1].item()
 
     nsp_prediction = "Next sentence" if next_sentence_prob > not_next_sentence_prob else "Not next sentence"
     return nsp_prediction, next_sentence_prob, not_next_sentence_prob
 
-# Funktion zur Berechnung der NSP-Genauigkeit
-def evaluate_nsp_accuracy(texts, model, mytokenizer, num_samples=100):
-    correct = 0
-
-    for _ in range(num_samples):
-        sent1 = random.choice(texts)
-        sent2 = random.choice(texts)
-
-        is_next = int(sent2 in sent1)  # 1 = korrekt, 0 = zufällig
-
-        encoding = mytokenizer(sent1, sent2, return_tensors="pt", truncation=True, padding="max_length", max_length=128)
-        encoding = {k: v.to(model.device) for k, v in encoding.items() if k != "token_type_ids"}  # Entferne 'token_type_ids'
-
-        with torch.no_grad():
-            outputs = model(**encoding)
-            logits = outputs.logits[:, 0]  # NSP-Logits
-            nsp_prediction = torch.argmax(logits).item()
-
-        if nsp_prediction == is_next:
-            correct += 1
-
-    return correct / num_samples
-
-# Beispieltexte für Next Sentence Prediction (NSP)
+# === Example texts for Next Sentence Prediction (NSP) with labels ===
 nsp_examples = [
-    # Positive Beispiele (zusammenhängende Sätze)
-    ("To be, or not to be,", "that is the question:"),
-    ("The sun rises in the east,", "and sets in the west."),
-    ("Friends, Romans, countrymen, lend me your ears!", "I come to bury Caesar, not to praise him."),
-    ("O Romeo, Romeo!", "Wherefore art thou Romeo?"),
-    ("In the beginning,", "God created the heavens and the earth."),
-    ("The quick brown fox", "jumps over the lazy dog."),
-    ("Once upon a time,", "there was a little girl named Red Riding Hood."),
-    ("He opened the old book,", "and dust flew into the air."),
-    ("The storm was fierce,", "but the sailors held their course."),
-    ("She knocked on the door,", "and waited for a response."),
+    ("To be, or not to be,", "that is the question:", 0),
+    ("The sun rises in the east,", "and sets in the west.", 0),
+    ("Friends, Romans, countrymen, lend me your ears!", "I come to bury Caesar, not to praise him.", 0),
+    ("O Romeo, Romeo!", "Wherefore art thou Romeo?", 0),
+    ("In the beginning,", "God created the heavens and the earth.", 0),
+    ("The quick brown fox", "jumps over the lazy dog.", 0),
+    ("Once upon a time,", "there was a little girl named Red Riding Hood.", 0),
+    ("He opened the old book,", "and dust flew into the air.", 0),
+    ("The storm was fierce,", "but the sailors held their course.", 0),
+    ("She knocked on the door,", "and waited for a response.", 0),
 
-    # Negative Beispiele (nicht zusammenhängende Sätze)
-    ("To be, or not to be,", "The cat ran across the street."),
-    ("The sun rises in the east,", "Bananas are rich in potassium."),
-    ("Friends, Romans, countrymen, lend me your ears!", "It’s going to rain tomorrow."),
-    ("O Romeo, Romeo!", "The price of oil has dropped significantly."),
-    ("In the beginning,", "The concert was sold out in minutes."),
-    ("The quick brown fox", "She loves to paint in her free time."),
-    ("Once upon a time,", "The temperature in Antarctica is freezing."),
-    ("He opened the old book,", "They decided to buy a new car."),
-    ("The storm was fierce,", "Mathematics is a fundamental subject in school."),
-    ("She knocked on the door,", "The stock market closed higher today."),
+    ("To be, or not to be,", "The cat ran across the street.", 1),
+    ("The sun rises in the east,", "Bananas are rich in potassium.", 1),
+    ("Friends, Romans, countrymen, lend me your ears!", "It’s going to rain tomorrow.", 1),
+    ("O Romeo, Romeo!", "The price of oil has dropped significantly.", 1),
+    ("In the beginning,", "The concert was sold out in minutes.", 1),
+    ("The quick brown fox", "She loves to paint in her free time.", 1),
+    ("Once upon a time,", "The temperature in Antarctica is freezing.", 1),
+    ("He opened the old book,", "They decided to buy a new car.", 1),
+    ("The storm was fierce,", "Mathematics is a fundamental subject in school.", 1),
+    ("She knocked on the door,", "The stock market closed higher today.", 1),
 ]
 
-# NSP-Ergebnisse
-print("\n=== Next Sentence Prediction (NSP) Ergebnisse ===")
-for s1, s2 in nsp_examples:
+# === Function to calculate NSP accuracy with labels ===
+def evaluate_nsp_accuracy(examples, model, tokenizer):
+    correct_predictions = 0
+    total_examples = len(examples)
+
+    for sentence1, sentence2, true_label in examples:
+        try:
+            inputs = tokenizer(sentence1, sentence2, return_tensors="pt", truncation=True, padding="max_length", max_length=128)
+            with torch.no_grad():
+                outputs = model(**inputs)
+                predicted_label = torch.argmax(outputs.logits, dim=-1).item()
+
+            if predicted_label == true_label:
+                correct_predictions += 1
+        except Exception as e:
+            logger.error(f"Error processing ('{sentence1}', '{sentence2}'): {e}")
+
+    accuracy = correct_predictions / total_examples
+    return accuracy
+
+# === Output NSP results ===
+logger.info("\n=== Next Sentence Prediction (NSP) Results ===")
+for s1, s2, label in nsp_examples:
     try:
         prediction, next_prob, not_next_prob = evaluate_nsp(s1, s2)
-        print(f"\nInput:\nSatz 1: {s1}\nSatz 2: {s2}")
-        print(f" - Vorhersage: {prediction}")
-        print(f" - Wahrscheinlichkeiten: Next: {next_prob:.4f}, Not Next: {not_next_prob:.4f}")
+        logger.info(f"\nInput:\nSentence 1: {s1}\nSentence 2: {s2}")
+        logger.info(f" - Prediction: {prediction}")
+        logger.info(f" - Probabilities: Next: {next_prob:.4f}, Not Next: {not_next_prob:.4f}")
     except Exception as e:
-        print(f"Fehler für Eingabe ('{s1}', '{s2}'): {e}")
+        logger.error(f"Error for input ('{s1}', '{s2}'): {e}")
 
-# NSP-Genauigkeit testen
+# === Test NSP accuracy ===
 accuracy = evaluate_nsp_accuracy(nsp_examples, nsp_model, tokenizer)
-print(f"\nNSP Genauigkeit: {accuracy:.2%}")
+logger.info(f"\nNSP Accuracy: {accuracy:.2%}")
