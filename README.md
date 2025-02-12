@@ -87,9 +87,9 @@ python evaluation_nsp.py
 └── README.md
 ```
 ## 📥 Download Models here:
-- [Masked Language Model (MLM)](https://huggingface.co/Ninja666/bookcorpus-mlm-model)
+- [Masked Language Model (MLM)](https://huggingface.co/Ninja666/bookcorpus_mlm_model)
 - [Next Sentence Prediction (NSP)](https://huggingface.co/Ninja666/bookcorpus-nsp-model)
-- [Kombiniertes Modell](https://huggingface.co/Ninja666/bert-combined-model)
+- [Kombiniertes Modell](https://huggingface.co/Ninja666/bert_combined_model)
 ---
 
 ## **🔹 Key Features:**
