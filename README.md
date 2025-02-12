@@ -116,5 +116,5 @@ For any issues or contributions, feel free to submit a pull request or open an i
 
 ---
 
-Happy coding! 🚀🔧
+🚀
 
